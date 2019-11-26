@@ -24,7 +24,7 @@ public class Clienthandler
 
             server = new ServerSocket(port);
 
-            System.out.println("Server.Server started");
+            System.out.println("Server started");
 
             Thread reciever = new Reciever();
             Thread sender = new Sender();

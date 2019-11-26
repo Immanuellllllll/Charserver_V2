@@ -1,5 +1,3 @@
-package Server;
-
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -10,7 +8,6 @@ public class Server {
     private Socket clientSocket;
     //private PrintWriter out;
    // private BufferedReader br;
-    Datacontainer dc;
 
 
     public void startServer() throws IOException {
