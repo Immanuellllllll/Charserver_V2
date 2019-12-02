@@ -13,7 +13,7 @@ public class Reciever extends Thread {
     public void run() {
         while (true) {
             for (int i=0; i<Datacontainer.clientlist.size();i++) {
-                Socket socket=Datacontainer.clientlist.get(i);
+                Socket socket=Datacontainer.clientlist.get(i).getSocket();
 
                 try {
                     in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
@@ -30,7 +30,7 @@ public class Reciever extends Thread {
 
                 } catch (IOException e) {
 
-                   // System.out.println(e);
+                    // System.out.println(e);
 
                 }
             }

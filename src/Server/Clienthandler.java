@@ -1,12 +1,11 @@
 package Server;
 
+import javax.xml.crypto.Data;
 import java.net.*;
 
 import java.io.*;
 
-public class Clienthandler
-
-{
+public class Clienthandler {
 
     private Socket socket = null;
 
@@ -14,13 +13,12 @@ public class Clienthandler
 
     private DataInputStream in = null;
 
-    public Clienthandler(int port)
+    private DataOutputStream out = null;
 
-    {
 
-        try
+    public Clienthandler(int port) {
 
-        {
+        try {
 
             server = new ServerSocket(port);
 
@@ -31,18 +29,40 @@ public class Clienthandler
 
             reciever.start();
             sender.start();
-            boolean x=true;
+            boolean x = true;
             while (x) {
                 System.out.println("Waiting for a client ...");
 
                 socket = server.accept();
+                in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
+                out = new DataOutputStream(socket.getOutputStream());
 
-                System.out.println(socket.toString());
-                System.out.println("Client.Client accepted");
+                String username;
+                username = in.readUTF();
+                try {
+                    if (!validUsername(username)) {
+                        System.out.println("invalid username");
+                        out.writeUTF("OVER");
+                        System.out.println("Sending OVER to Client");
+                    } else {
+                        out.writeUTF("J_OK");
+                        System.out.println("J_OK Sent to Client");
+                        Datacontainer.clientlist.add(new User(username, socket));
+                        System.out.println("User: " + username + ":" + socket.getPort());
+                        System.out.println("Client.Client accepted");
+                    }
+                } catch (NullPointerException e) {
+                    System.out.println("Cant do J_OK");
+                }
 
-                Datacontainer.clientlist.add(socket);
+                //System.out.println(socket);
+                //System.out.println(username);
 
-                System.out.println("Number of clients: "+Datacontainer.clientlist.size());
+                //System.out.println("User: "+username+":"+ socket.getPort());
+                //System.out.println("Client.Client accepted");
+
+                System.out.println("Number of clients: " + Datacontainer.clientlist.size());
+
 
             }
 
@@ -53,15 +73,20 @@ public class Clienthandler
 
             in.close();
 
-        }
-
-        catch(IOException i)
-
-        {
+        } catch (IOException i) {
 
             System.out.println(i);
 
         }
 
+    }
+
+    private boolean validUsername(String message) {
+        for (int i = 0; i < Datacontainer.clientlist.size(); i++) {
+            if (message.equals(Datacontainer.clientlist.get(i).getUserName())) {
+                return false;
+            }
+        }
+        return true;
     }
 }

@@ -17,7 +17,7 @@ public class Sender extends Thread {
             if (Datacontainer.messagelist.size()>0) {
                 message = Datacontainer.messagelist.poll();
                 for (int i = 0; i < Datacontainer.clientlist.size(); i++) {
-                    Socket socket = Datacontainer.clientlist.get(i);
+                    Socket socket = Datacontainer.clientlist.get(i).getSocket();
                     if (!message.getUser().equals(socket.toString())) {
                         try {
                             out = new DataOutputStream(socket.getOutputStream());

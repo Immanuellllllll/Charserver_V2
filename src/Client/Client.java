@@ -3,10 +3,9 @@ package Client;
 import java.net.*;
 
 import java.io.*;
+import java.util.Scanner;
 
-public class Client
-
-{
+public class Client {
 
     private Socket socket = null;
 
@@ -16,19 +15,19 @@ public class Client
 
     private DataOutputStream out = null;
 
+    Scanner scanner = new Scanner(System.in);
+
 // constructor to put ip address and port
 
-    public Client(String address, int port)
+    public Client(String address, int port) throws IOException {
 
-    {
+        try {
 
-        try
-
-        {
+            System.out.println("Please Enter Username: (Cannot Contain: @!£#¤$%€&/()[]{})");
 
             socket = new Socket(address, port);
 
-            System.out.println("Connected");
+            //System.out.println("Connected");
 
             input = new DataInputStream(System.in);
 
@@ -38,48 +37,50 @@ public class Client
 
             Thread clientreciever = new ClientReciever();
 
+            out.writeUTF(JOIN());
             clientreciever.start();
 
-        }
-        catch(IOException i)
-        {
+            if (in.readUTF().equals("J_OK")) {
+                System.out.println("Connected to Server");
+            }
+
+        } catch (IOException i) {
             System.out.println(i);
-        }
-        catch(Exception e)
-        {
+        } catch (Exception e) {
             System.out.println(e);
         }
 
         String line = "";
 
-        while (!line.equals("Over"))
+        while (!line.equals("QUIT")) {
 
-        {
-
-            try
-
-            {
-
+            try {
                 line = input.readLine();
-
                 out.writeUTF(line);
-
-
-            }
-
-            catch(IOException i)
-
-            {
-
+            } catch (IOException i) {
                 System.out.println(i);
-
             }
 
+            if (in.readUTF().equals("OVER")) {
+
+                try {
+
+                    input.close();
+
+                    out.close();
+
+                    socket.close();
+
+                } catch (IOException i) {
+
+                    System.out.println(i);
+
+                }
+            }
         }
+        System.out.println("Connection Has Been Closed");
 
-        try
-
-        {
+        try {
 
             input.close();
 
@@ -87,11 +88,7 @@ public class Client
 
             socket.close();
 
-        }
-
-        catch(IOException i)
-
-        {
+        } catch (IOException i) {
 
             System.out.println(i);
 
@@ -99,12 +96,18 @@ public class Client
 
     }
 
+    private String JOIN() {
+        String username = scanner.next();
+        InetAddress server_ip = socket.getInetAddress();
+        int port = socket.getPort();
+        return username + server_ip + port;
+    }
 
 
     private class ClientReciever extends Thread {
 
         public void run() {
-            while (true){
+            while (true) {
                 try {
                     System.out.println(in.readUTF());
                 } catch (IOException e) {
