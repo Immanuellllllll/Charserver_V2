@@ -45,13 +45,15 @@ class Client {
 
         String line = "";
         while (!line.equals("QUIT")) {
+            System.out.println("hehehe");
 
             try {
                 line = input.readLine();
                 if (out != null) {
                     out.writeUTF(line);
-                    sendData();
-                    receiveData();
+                    System.out.println("HEYE"+line);
+                    //sendData();
+                    //receiveData();
                 }
 
             } catch (IOException i) {
@@ -67,10 +69,9 @@ class Client {
                 }
             }
         }
-        System.out.println("Connection Has Been Closed");
-
         try {
             closeSocket();
+            System.out.println("Connection Has Been Closed");
         } catch (IOException i) {
             System.out.println(i);
         }

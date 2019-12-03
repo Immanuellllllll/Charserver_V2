@@ -43,19 +43,24 @@ public class Clienthandler {
 
                 try {
                     if (!checkDuplicateUsername(username)) {
-                        usernameERROR();
-                        System.out.println("Sending ERROR to Client");
+                        duplicateERROR();
+                        System.out.println("Sending DUPLICATE ERROR to Client!");
                     } else {
                         out.writeUTF("J_OK");
                         System.out.println("J_OK Sent to Client");
                         Datacontainer.clientlist.add(new User(username, socket));
-                        System.out.println("User: " + username + ":" + socket.getPort()+" accepted");
+                        System.out.println("User: " + username + ":" + socket.getPort() + " accepted");
                     }
                 } catch (NullPointerException e) {
+                    unknownERROR();
                     System.out.println("Cant do J_OK");
                 }
                 System.out.println("Number of clients: " + Datacontainer.clientlist.size());
-                while (!in.readUTF().isEmpty()){
+
+            }
+
+            while (x) {
+                if (!in.readUTF().isEmpty()) {
                     System.out.println(reciever.message);
                 }
             }
@@ -77,27 +82,35 @@ public class Clienthandler {
         return true;
     }
 
-    private void usernameERROR() throws IOException {
-        out.writeUTF("Error01:"+" Invalid Username!");
-        System.out.println("ERROR");
+    private boolean usernameERROR(String message) throws IOException {
+        if (!message.contains("@")) {
+            out.writeUTF("Error01:" + " Invalid Username!");
+            System.out.println("Error-01! Invalid Username");
+            return false;
+        }
+        return true;
     }
+
     private void duplicateERROR() throws IOException {
-        out.writeUTF("Error02:"+" Duplicate Username!");
+        out.writeUTF("Error-02:" + " Duplicate Username!");
     }
+
     private void unknownERROR() throws IOException {
-    out.writeUTF("Error03"+ " Unknown Command!");
+        out.writeUTF("Error03" + " Unknown Command!");
     }
 
     private void userList() throws IOException {
         System.out.println(Datacontainer.clientlist);
         out.writeUTF("Here is a list of all current users: " + Datacontainer.clientlist);
     }
+
     private void closeSocket() throws IOException {
         socket.close();
         in.close();
         System.out.println("Closing connection");
         out.writeUTF("Connection Closed By Server!");
     }
+
     private void clientQUIT() throws IOException {
         System.out.println("Client is Quitting!");
         out.writeUTF("You have been removed from the Chat Server!");
