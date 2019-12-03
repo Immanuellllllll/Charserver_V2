@@ -24,11 +24,12 @@ public class Clienthandler {
 
             System.out.println("Server started");
 
-            Thread reciever = new Reciever();
+            Reciever reciever = new Reciever();
             Thread sender = new Sender();
 
             reciever.start();
             sender.start();
+
             boolean x = true;
             while (x) {
                 System.out.println("Waiting for a client ...");
@@ -39,54 +40,66 @@ public class Clienthandler {
 
                 String username;
                 username = in.readUTF();
+
                 try {
-                    if (!validUsername(username)) {
-                        System.out.println("invalid username");
-                        out.writeUTF("OVER");
-                        System.out.println("Sending OVER to Client");
+                    if (!checkDuplicateUsername(username)) {
+                        usernameERROR();
+                        System.out.println("Sending ERROR to Client");
                     } else {
                         out.writeUTF("J_OK");
                         System.out.println("J_OK Sent to Client");
                         Datacontainer.clientlist.add(new User(username, socket));
-                        System.out.println("User: " + username + ":" + socket.getPort());
-                        System.out.println("Client.Client accepted");
+                        System.out.println("User: " + username + ":" + socket.getPort()+" accepted");
                     }
                 } catch (NullPointerException e) {
                     System.out.println("Cant do J_OK");
                 }
-
-                //System.out.println(socket);
-                //System.out.println(username);
-
-                //System.out.println("User: "+username+":"+ socket.getPort());
-                //System.out.println("Client.Client accepted");
-
                 System.out.println("Number of clients: " + Datacontainer.clientlist.size());
-
-
+                while (!in.readUTF().isEmpty()){
+                    System.out.println(reciever.message);
+                }
             }
 
-
-            System.out.println("Closing connection");
-
-            socket.close();
-
-            in.close();
+            closeSocket();
 
         } catch (IOException i) {
-
             System.out.println(i);
-
         }
-
     }
 
-    private boolean validUsername(String message) {
+    private boolean checkDuplicateUsername(String message) throws IOException {
         for (int i = 0; i < Datacontainer.clientlist.size(); i++) {
             if (message.equals(Datacontainer.clientlist.get(i).getUserName())) {
+                duplicateERROR();
                 return false;
             }
         }
         return true;
+    }
+
+    private void usernameERROR() throws IOException {
+        out.writeUTF("Error01:"+" Invalid Username!");
+        System.out.println("ERROR");
+    }
+    private void duplicateERROR() throws IOException {
+        out.writeUTF("Error02:"+" Duplicate Username!");
+    }
+    private void unknownERROR() throws IOException {
+    out.writeUTF("Error03"+ " Unknown Command!");
+    }
+
+    private void userList() throws IOException {
+        System.out.println(Datacontainer.clientlist);
+        out.writeUTF("Here is a list of all current users: " + Datacontainer.clientlist);
+    }
+    private void closeSocket() throws IOException {
+        socket.close();
+        in.close();
+        System.out.println("Closing connection");
+        out.writeUTF("Connection Closed By Server!");
+    }
+    private void clientQUIT() throws IOException {
+        System.out.println("Client is Quitting!");
+        out.writeUTF("You have been removed from the Chat Server!");
     }
 }

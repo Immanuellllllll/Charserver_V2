@@ -20,18 +20,12 @@ public class Reciever extends Thread {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-
-
                 try {
-                    socket.setSoTimeout(1);
+                    //socket.setSoTimeout(1);
                     message = in.readUTF();
-
                     Datacontainer.messagelist.add(new Message(socket.toString(),message));
-
                 } catch (IOException e) {
-
-                    // System.out.println(e);
-
+                    System.out.println(e);
                 }
             }
         }
