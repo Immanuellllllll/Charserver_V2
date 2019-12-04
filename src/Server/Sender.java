@@ -13,8 +13,8 @@ public class Sender extends Thread {
 
     @Override
     public void run() {
-        while (true){
-            if (Datacontainer.messagelist.size()>0) {
+        while (true) {
+            if (Datacontainer.messagelist.size() > 0) {
                 message = Datacontainer.messagelist.poll();
                 for (int i = 0; i < Datacontainer.clientlist.size(); i++) {
                     Socket socket = Datacontainer.clientlist.get(i).getSocket();
@@ -36,11 +36,6 @@ public class Sender extends Thread {
                     }
                 }
             }
-
-
-
-
-
         }
     }
 }
