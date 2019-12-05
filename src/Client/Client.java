@@ -3,6 +3,11 @@ package Client;
 import java.net.*;
 
 import java.io.*;
+import java.sql.Time;
+import java.text.Format;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.LocalTime;
 import java.util.Scanner;
 
 class Client {
@@ -12,7 +17,6 @@ class Client {
     private Scanner scanner = new Scanner(System.in);
     private DataOutputStream out = null;
     private DataInputStream input = null;
-    private String userName;
 
 // constructor to put ip address and port
 
@@ -21,18 +25,18 @@ class Client {
         try {
             System.out.println("Please Enter Username: (Cannot Contain: @!£#¤$%€&/()[]{})");
             socket = new Socket(address, port);
-            //System.out.println("Connected");
             in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
             out = new DataOutputStream(socket.getOutputStream());
             input = new DataInputStream(System.in);
 
             Thread clientreciever = new ClientReciever();
-            Thread clientsender = new ClientSender();
+            Thread heartbeat = new Heartbeat();
 
             out.writeUTF(JOIN());
 
+
             clientreciever.start();
-            //clientsender.start();
+            heartbeat.start();
 
             if (in.readUTF().equals("J_OK")) {
                 System.out.println("You have Connected to the Server");
@@ -43,34 +47,26 @@ class Client {
         }
 
 
+
         String line = "";
         while (!line.equals("QUIT")) {
-            System.out.println("hehehe");
 
             try {
                 line = input.readLine();
-                if (out != null) {
+                if (out != null || !(line.length()>250)) {
                     out.writeUTF(line);
-                    System.out.println("HEYE"+line);
-                    //sendData();
-                    //receiveData();
+
+                }
+                else{
+                    System.out.println("Message not sent");
                 }
 
             } catch (IOException i) {
                 System.out.println(i);
             }
-
-            if (in != null && in.readUTF().equals("OVER")) {
-
-                try {
-                    closeSocket();
-                } catch (IOException i) {
-                    System.out.println(i);
-                }
-            }
         }
         try {
-            closeSocket();
+            QUIT();
             System.out.println("Connection Has Been Closed");
         } catch (IOException i) {
             System.out.println(i);
@@ -93,13 +89,19 @@ class Client {
     }
 
     private String JOIN() {
-        String username = scanner.next();
-        InetAddress server_ip = socket.getInetAddress();
-        int port = socket.getPort();
-        return username + server_ip + port;
+        String username="";
+        while (true){
+            username = scanner.next();
+            if (username.matches("[A-Za-z0-9_]+")|| username.length()<12){
+            break;
+            }
+            System.out.println("Invalid username");
+        }
+        return username;
     }
 
     private void QUIT() throws IOException {
+        closeSocket();
         out.writeUTF("QUIT" + socket.getInetAddress());
         System.out.println("You are leaving the Chat Server!");
     }
@@ -116,13 +118,18 @@ class Client {
             }
         }
     }
-    private class ClientSender extends Thread{
 
+    private class Heartbeat extends Thread {
+        String message = "IMAV";
+
+        @Override
         public void run() {
             while (true){
                 try {
-                    out.writeUTF(String.valueOf(input));
-                } catch (IOException e) {
+                    Thread.sleep(6000);
+                    out.writeUTF(message);
+                    //System.out.println(message);
+                } catch (InterruptedException | IOException e) {
                     e.printStackTrace();
                 }
             }

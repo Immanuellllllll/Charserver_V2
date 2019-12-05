@@ -14,18 +14,19 @@ public class Reciever extends Thread {
         while (true) {
             for (int i=0; i<Datacontainer.clientlist.size();i++) {
                 Socket socket=Datacontainer.clientlist.get(i).getSocket();
-
                 try {
                     in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
                 try {
-                    //socket.setSoTimeout(1);
+                    socket.setSoTimeout(1);
                     message = in.readUTF();
-                    Datacontainer.messagelist.add(new Message(socket.toString(),message));
+                    if (!message.equals("IMAV")) {
+                        Datacontainer.messagelist.add(new Message(Datacontainer.clientlist.get(i).getUserName(), message));
+                    }
                 } catch (IOException e) {
-                    System.out.println(e);
+                    //System.out.println(e);
                 }
             }
         }

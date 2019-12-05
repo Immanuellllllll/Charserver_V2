@@ -40,16 +40,17 @@ public class Clienthandler {
 
                 String username;
                 username = in.readUTF();
-
                 try {
+
                     if (!checkDuplicateUsername(username)) {
-                        duplicateERROR();
                         System.out.println("Sending DUPLICATE ERROR to Client!");
-                    } else {
+                    }
+                    else {
                         out.writeUTF("J_OK");
                         System.out.println("J_OK Sent to Client");
                         Datacontainer.clientlist.add(new User(username, socket));
-                        System.out.println("User: " + username + ":" + socket.getPort() + " accepted");
+                        System.out.println("JOIN " + username + ", " + socket.getInetAddress() + ":" + socket.getPort());
+                        Datacontainer.messagelist.add(new Message("List", getUserList()));
                     }
                 } catch (NullPointerException e) {
                     unknownERROR();
@@ -59,17 +60,20 @@ public class Clienthandler {
 
             }
 
-            while (x) {
-                if (!in.readUTF().isEmpty()) {
-                    System.out.println(reciever.message);
-                }
-            }
 
             closeSocket();
 
         } catch (IOException i) {
             System.out.println(i);
         }
+    }
+
+    private String getUserList() {
+        String userlist = "";
+        for (int i = 0; Datacontainer.clientlist.size() > i; i++) {
+            userlist += Datacontainer.clientlist.get(i).getUserName() + " ";
+        }
+        return userlist;
     }
 
     private boolean checkDuplicateUsername(String message) throws IOException {
@@ -82,21 +86,12 @@ public class Clienthandler {
         return true;
     }
 
-    private boolean usernameERROR(String message) throws IOException {
-        if (!message.contains("@")) {
-            out.writeUTF("Error01:" + " Invalid Username!");
-            System.out.println("Error-01! Invalid Username");
-            return false;
-        }
-        return true;
-    }
-
     private void duplicateERROR() throws IOException {
-        out.writeUTF("Error-02:" + " Duplicate Username!");
+        out.writeUTF("Error-02:" + " Duplicate Username! Refresh and Try Again!");
     }
 
     private void unknownERROR() throws IOException {
-        out.writeUTF("Error03" + " Unknown Command!");
+        out.writeUTF("Error03:" + " Unknown Command!");
     }
 
     private void userList() throws IOException {
@@ -114,5 +109,7 @@ public class Clienthandler {
     private void clientQUIT() throws IOException {
         System.out.println("Client is Quitting!");
         out.writeUTF("You have been removed from the Chat Server!");
+        userList();
     }
+
 }
