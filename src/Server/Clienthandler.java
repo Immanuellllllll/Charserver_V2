@@ -88,7 +88,7 @@ public class Clienthandler {
     }
 
     private void duplicateERROR() throws IOException {
-        out.writeUTF("J_ER Error-02:" + " Duplicate Username! Refresh and Try Again!");
+        out.writeUTF("J_ER Error-02:" + " Duplicate Username! Try Again!");
     }
 
     private void unknownERROR() throws IOException {
