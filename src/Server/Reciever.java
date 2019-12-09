@@ -4,6 +4,7 @@ import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.time.LocalDateTime;
 
 public class Reciever extends Thread {
     private DataInputStream in = null;
@@ -25,9 +26,19 @@ public class Reciever extends Thread {
                     if (!message.equals("IMAV")) {
                         Datacontainer.messagelist.add(new Message(Datacontainer.clientlist.get(i).getUserName(), message));
                     }
+                    else{
+                        Datacontainer.clientlist.get(i).setLastHeartbeat(System.currentTimeMillis());
+                    }
                 } catch (IOException e) {
                     //System.out.println(e);
                 }
+                try {
+                if (System.currentTimeMillis()>Datacontainer.clientlist.get(i).getLastHeartbeat()+61000) {
+                    System.out.println(Datacontainer.clientlist.get(i).getUserName()+" has been removed for inactivity");
+                    Datacontainer.messagelist.add(new Message("Server",Datacontainer.clientlist.get(i).getUserName()+" has been removed for inactivity"));
+                    Datacontainer.clientlist.remove(i);
+                }
+                }catch (IndexOutOfBoundsException e){}
             }
         }
     }

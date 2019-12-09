@@ -122,6 +122,7 @@ class Client {
                 try {
                     System.out.println(in.readUTF());
                 } catch (IOException e) {
+                    recieve=false;
                     e.printStackTrace();
                 }
             }
@@ -135,7 +136,7 @@ class Client {
         public void run() {
             while (recieve){
                 try {
-                    Thread.sleep(6000);
+                    Thread.sleep(60000);
                     out.writeUTF(message);
                     //System.out.println(message);
                 } catch (InterruptedException | IOException e) {

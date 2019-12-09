@@ -4,6 +4,8 @@ import javax.xml.crypto.Data;
 import java.net.*;
 
 import java.io.*;
+import java.sql.Time;
+import java.time.LocalDateTime;
 
 public class Clienthandler {
 
@@ -47,8 +49,9 @@ public class Clienthandler {
                         } else {
                             out.writeUTF("J_OK");
                             System.out.println("J_OK Sent to Client");
-                            Datacontainer.clientlist.add(new User(username, socket));
+                            Datacontainer.clientlist.add(new User(username, socket, System.currentTimeMillis()));
                             System.out.println("JOIN " + username + ", " + socket.getInetAddress() + ":" + socket.getPort());
+                            System.out.println("Number of clients: " + Datacontainer.clientlist.size());
                             Datacontainer.messagelist.add(new Message("List", getUserList()));
                             break;
                         }
@@ -56,7 +59,6 @@ public class Clienthandler {
                         unknownERROR();
                         System.out.println("Cant do J_OK");
                     }
-                    System.out.println("Number of clients: " + Datacontainer.clientlist.size());
                 }
             }
 
