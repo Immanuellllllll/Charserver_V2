@@ -38,26 +38,26 @@ public class Clienthandler {
                 in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
                 out = new DataOutputStream(socket.getOutputStream());
 
-                String username;
-                username = in.readUTF();
-                try {
-
-                    if (!checkDuplicateUsername(username)) {
-                        System.out.println("Sending DUPLICATE ERROR to Client!");
+                while (true) {
+                    String username;
+                    username = in.readUTF();
+                    try {
+                        if (!validUsername(username)) {
+                            System.out.println("Sending ERROR to Client!");
+                        } else {
+                            out.writeUTF("J_OK");
+                            System.out.println("J_OK Sent to Client");
+                            Datacontainer.clientlist.add(new User(username, socket));
+                            System.out.println("JOIN " + username + ", " + socket.getInetAddress() + ":" + socket.getPort());
+                            Datacontainer.messagelist.add(new Message("List", getUserList()));
+                            break;
+                        }
+                    } catch (NullPointerException e) {
+                        unknownERROR();
+                        System.out.println("Cant do J_OK");
                     }
-                    else {
-                        out.writeUTF("J_OK");
-                        System.out.println("J_OK Sent to Client");
-                        Datacontainer.clientlist.add(new User(username, socket));
-                        System.out.println("JOIN " + username + ", " + socket.getInetAddress() + ":" + socket.getPort());
-                        Datacontainer.messagelist.add(new Message("List", getUserList()));
-                    }
-                } catch (NullPointerException e) {
-                    unknownERROR();
-                    System.out.println("Cant do J_OK");
+                    System.out.println("Number of clients: " + Datacontainer.clientlist.size());
                 }
-                System.out.println("Number of clients: " + Datacontainer.clientlist.size());
-
             }
 
 
@@ -76,22 +76,23 @@ public class Clienthandler {
         return userlist;
     }
 
-    private boolean checkDuplicateUsername(String message) throws IOException {
+    private boolean validUsername(String message) throws IOException {
         for (int i = 0; i < Datacontainer.clientlist.size(); i++) {
             if (message.equals(Datacontainer.clientlist.get(i).getUserName())) {
                 duplicateERROR();
                 return false;
             }
+            // TODO: 08-12-2019 Add conditions for unkown command, bad command and other errors
         }
         return true;
     }
 
     private void duplicateERROR() throws IOException {
-        out.writeUTF("Error-02:" + " Duplicate Username! Refresh and Try Again!");
+        out.writeUTF("J_ER Error-02:" + " Duplicate Username! Refresh and Try Again!");
     }
 
     private void unknownERROR() throws IOException {
-        out.writeUTF("Error03:" + " Unknown Command!");
+        out.writeUTF("J_ER Error03:" + " Unknown Command!");
     }
 
     private void userList() throws IOException {

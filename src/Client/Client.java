@@ -17,13 +17,13 @@ class Client {
     private Scanner scanner = new Scanner(System.in);
     private DataOutputStream out = null;
     private DataInputStream input = null;
+    private boolean recieve = true;
 
 // constructor to put ip address and port
 
     Client(String address, int port) throws IOException {
 
         try {
-            System.out.println("Please Enter Username: (Cannot Contain: @!£#¤$%€&/()[]{})");
             socket = new Socket(address, port);
             in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
             out = new DataOutputStream(socket.getOutputStream());
@@ -31,20 +31,28 @@ class Client {
 
             Thread clientreciever = new ClientReciever();
             Thread heartbeat = new Heartbeat();
+            boolean connected = false;
+            while (!connected) {
+                System.out.println("Please Enter Username: (Cannot Contain: @!£#¤$%€&/()[]{})");
+                out.writeUTF(JOIN());
 
-            out.writeUTF(JOIN());
 
 
-            clientreciever.start();
-            heartbeat.start();
-
-            if (in.readUTF().equals("J_OK")) {
-                System.out.println("You have Connected to the Server");
+                String msg = in.readUTF();
+                if (msg.equals("J_OK")) {
+                    clientreciever.start();
+                    heartbeat.start();
+                    System.out.println("You have Connected to the Server");
+                    connected = true;
+                } else {
+                    System.out.println(msg);
+                }
             }
-
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             System.out.println(e);
         }
+
 
 
 
@@ -92,7 +100,7 @@ class Client {
         String username="";
         while (true){
             username = scanner.next();
-            if (username.matches("[A-Za-z0-9_]+")|| username.length()<12){
+            if (username.matches("[A-Za-z0-9_]+") && username.length()<12){
             break;
             }
             System.out.println("Invalid username");
@@ -101,15 +109,16 @@ class Client {
     }
 
     private void QUIT() throws IOException {
+        recieve=false;
         closeSocket();
-        out.writeUTF("QUIT" + socket.getInetAddress());
+        out.writeUTF("QUIT");
         System.out.println("You are leaving the Chat Server!");
     }
 
     private class ClientReciever extends Thread {
 
         public void run() {
-            while (true) {
+            while (recieve) {
                 try {
                     System.out.println(in.readUTF());
                 } catch (IOException e) {
@@ -124,7 +133,7 @@ class Client {
 
         @Override
         public void run() {
-            while (true){
+            while (recieve){
                 try {
                     Thread.sleep(6000);
                     out.writeUTF(message);

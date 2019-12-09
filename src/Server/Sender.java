@@ -34,6 +34,7 @@ public class Sender extends Thread {
                         try {
                             out.writeUTF(formattedDate+" "+message.getUser() + ": " + message.getText());
                         } catch (IOException e) {
+                            System.out.println(Datacontainer.clientlist.get(i).getUserName()+" disconnected");
                             Datacontainer.clientlist.remove(i);
                             System.out.println(e);
                         }
