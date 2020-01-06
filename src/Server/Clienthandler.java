@@ -24,8 +24,8 @@ public class Clienthandler {
 
             server = new ServerSocket(port);
 
-            System.out.println("Server started");
 
+            System.out.println("Server started ");
             Reciever reciever = new Reciever();
             Thread sender = new Sender();
 
@@ -37,6 +37,8 @@ public class Clienthandler {
                 System.out.println("Waiting for a client ...");
 
                 socket = server.accept();
+                System.out.println(socket.getPort());
+
                 in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
                 out = new DataOutputStream(socket.getOutputStream());
 

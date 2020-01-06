@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 
 public class Clientdemo {
     public static void main(String args[]) throws IOException {
-        Client client = new Client("127.0.0.1", 5000);
+        Client client = new Client("localhost", 5000);
     }
 }
 

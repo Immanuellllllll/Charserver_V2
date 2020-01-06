@@ -28,7 +28,6 @@ class Client {
             in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
             out = new DataOutputStream(socket.getOutputStream());
             input = new DataInputStream(System.in);
-
             Thread clientreciever = new ClientReciever();
             Thread heartbeat = new Heartbeat();
             boolean connected = false;
